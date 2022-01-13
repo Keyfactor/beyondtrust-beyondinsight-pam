@@ -14,7 +14,9 @@
 
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Net.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -36,12 +38,22 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 
         public Client(string url, string username, string apiKey)
         {
+#if DEBUG
+            var handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+#endif
+
             _url = url;
             _username = username;
             _apiKey = apiKey;
+#if DEBUG
+            _httpClient = new HttpClient(handler);
+#else
             _httpClient = new HttpClient();
+#endif
             _httpClient.BaseAddress = new Uri(url);
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"PS-Auth key={apiKey} runas={username}");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"PS-Auth key={apiKey}; runas={username};");
+            _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");
         }
 
         public async Task<int> RequestCredential(string systemId, string accountId)
@@ -50,22 +62,22 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             {
                 SystemID = int.Parse(systemId),
                 AccountID = int.Parse(accountId),
-                DurationMinutes = 2,
+                DurationMinutes = 1, // need to check for duplicate open requests during this window to prevent 409 Conflict response
                 Reason = "Automated request for Keyfactor PAM Provider plugin"
             };
 
             StringContent content = new StringContent(JsonConvert.SerializeObject(credentialRequest, serializerSettings), Encoding.UTF8, "application/json");
             HttpResponseMessage response = await _httpClient.PostAsync("Requests", content);
-            API.CreatedRequest credentialRequestResponse = await GetResponseAsync<API.CreatedRequest>(response);
+            int credentialRequestResponse = await GetResponseAsync<int>(response);
 
-            return credentialRequestResponse.RequestID; 
+            return credentialRequestResponse; 
         }
 
         public async Task<string> RetrieveCredential(int requestId)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"Credentials/{requestId}");
-            API.Credential credential = await GetResponseAsync<API.Credential>(response);
-            return credential.Credentials;
+            string credential = await GetResponseAsync<string>(response);
+            return credential;
         }
 
         public async Task<bool> StartPlatformAccess()
