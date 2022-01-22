@@ -18,7 +18,7 @@ jobs:
         run: |
           echo "README_SOURCE=$(cat readme_source.md)" >> $GITHUB_ENV
 
-      - uses: Keyfactor/jinja2-action@b69eacf
+      - uses: Keyfactor/jinja2-action@b69eacff7f077337498bad8fb058cca0361c3b19
         with:
           template: ./actions/Keyfactor/actions/readme-templates/readme.md.tpl
           output_file: README.md
