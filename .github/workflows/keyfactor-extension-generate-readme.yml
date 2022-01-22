@@ -1,0 +1,33 @@
+name: Update README
+on: [push, workflow_dispatch]
+
+jobs:
+  update_readme:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Place readme_source into environment variable
+        run: |
+          echo "README_SOURCE=$(cat readme_source.md)" >> $GITHUB_ENV
+
+      - uses: Keyfactor/actions/jinja2-action@b69eacf
+        with:
+          template: ${{ env.GITHUB_WORKSPACE }}/Keyfactor/actions/readme-templates/readme.md.tpl
+          output_file: README.md
+          data_file: |
+            integration-manifest.json
+            ${{ env.GITHUB_WORKSPACE }}/Keyfactor/actions/readme-templates/readme_shared_data.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
+        
+      - uses: Keyfactor/actions/git-auto-commit-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          push_options: '--force'
+          commit_message: Update generated README
+          commit_user_name: Keyfactor
+          commit_user_email: keyfactor@keyfactor.github.io
+          commit_author: Keyfactor <keyfactor@keyfactor.github.io>
