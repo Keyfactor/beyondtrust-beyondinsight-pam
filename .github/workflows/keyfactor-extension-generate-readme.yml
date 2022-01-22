@@ -7,24 +7,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/checkout@v2
         with:
           submodules: recursive
+          repository: 'Keyfactor/actions'
+          path: './actions/'
 
       - name: Place readme_source into environment variable
         run: |
           echo "README_SOURCE=$(cat readme_source.md)" >> $GITHUB_ENV
 
-      - uses: Keyfactor/actions/jinja2-action@b69eacf
+      - uses: Keyfactor/jinja2-action@b69eacf
         with:
-          template: ${{ env.GITHUB_WORKSPACE }}/Keyfactor/actions/readme-templates/readme.md.tpl
+          template: ./actions/Keyfactor/actions/readme-templates/readme.md.tpl
           output_file: README.md
           data_file: |
             integration-manifest.json
-            ${{ env.GITHUB_WORKSPACE }}/Keyfactor/actions/readme-templates/readme_shared_data.json
+            ./actions/Keyfactor/actions/readme-templates/readme_shared_data.json
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
         
-      - uses: Keyfactor/actions/git-auto-commit-action@v4
+      - uses: ./actions/Keyfactor/actions/git-auto-commit-action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
