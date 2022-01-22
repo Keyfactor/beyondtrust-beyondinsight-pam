@@ -16,9 +16,9 @@ jobs:
 
       - name: Place readme_source into environment variable
         run: |
-          echo "README_SOURCE<<EOF" >> $GITHUB_ENV
+          echo 'README_SOURCE<<EOF' >> $GITHUB_ENV
           cat readme_source.md >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
       - uses: Keyfactor/jinja2-action@b69eacff7f077337498bad8fb058cca0361c3b19
         with:
