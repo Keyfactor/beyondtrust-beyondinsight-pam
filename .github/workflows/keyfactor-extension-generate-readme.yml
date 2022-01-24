@@ -14,11 +14,13 @@ jobs:
           repository: 'Keyfactor/actions'
           path: './actions/'
 
-      - uses: Keyfactor/jinja2-action@v1.2.0
+      - uses: Keyfactor/jinja2-action@0fc3069018ae3ba6d5e622493f148fa5183946fc
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
-          data_file: integration-manifest.json
+          data_file: |
+            integration-manifest.json
+            ./actions/readme-templates/readme_shared_data.json
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
         
