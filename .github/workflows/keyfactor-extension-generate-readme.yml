@@ -16,15 +16,15 @@ jobs:
 
       - uses: Keyfactor/jinja2-action@21b4df10e4bb34a5eafeb9adb6f500717d133a5b
         with:
-          template: ./actions/Keyfactor/actions/readme-templates/readme.md.tpl
+          template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
           data_file: |
             integration-manifest.json
-            ./actions/Keyfactor/actions/readme-templates/readme_shared_data.json
+            ./actions/readme-templates/readme_shared_data.json
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
         
-      - uses: ./actions/Keyfactor/actions/git-auto-commit-action
+      - uses: ./actions/git-auto-commit-action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
