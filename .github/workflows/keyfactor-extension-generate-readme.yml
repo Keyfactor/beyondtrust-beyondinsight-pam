@@ -13,6 +13,10 @@ jobs:
           submodules: recursive
           repository: 'Keyfactor/actions'
           path: './actions/'
+          
+      - name: Load shared Readme variables
+        run: |
+          
 
       - uses: Keyfactor/jinja2-action@d1a569f12c81cdb68fdc9fcd1e2f27d6a53c148d
         with:
@@ -29,6 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          file_pattern: README.md 
           push_options: '--force'
           commit_message: Update generated README
           commit_user_name: Keyfactor
