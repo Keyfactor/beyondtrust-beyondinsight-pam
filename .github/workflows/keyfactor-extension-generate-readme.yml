@@ -15,8 +15,15 @@ jobs:
           path: './actions/'
           
       - name: Load shared Readme variables
+        id: load_jinja_vars
         run: |
-          
+          jinja_vars=$(cat << EOF
+          $(cat ./actions/readme-templates/readme_shared_data.json | jq -r 'to_entries[] | "\(.key)=\(.value)"')
+          EOF
+          )          
+          echo "JINJA_VARS << EOF" >> $GITHUB_ENV
+          echo "$jinja_vars" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - uses: Keyfactor/jinja2-action@d1a569f12c81cdb68fdc9fcd1e2f27d6a53c148d
         with:
@@ -24,8 +31,8 @@ jobs:
           output_file: README.md
           data_file: integration-manifest.json
           variables: |
-            display_names={"pam":"PAM Provider"}
-            descriptions={"pam":"ABOUT PAM PROVIDERS"}
+            ${{ env.JINJA_VARS }}
+                        
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
         
