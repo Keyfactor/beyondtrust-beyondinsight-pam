@@ -35,14 +35,15 @@ jobs:
                         
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
+          
+      - name: Show generated README.md
+        run: echo $(cat README.md)
         
-      - uses: ./actions/git-auto-commit-action
+      - uses: ./actions/add-and-commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file_pattern: README.md 
-          push_options: '--force'
+          add: README.md --force
           commit_message: Update generated README
-          commit_user_name: Keyfactor
-          commit_user_email: keyfactor@keyfactor.github.io
-          commit_author: Keyfactor <keyfactor@keyfactor.github.io>
+          author_name: Keyfactor
+          author_email: keyfactor@keyfactor.github.io
