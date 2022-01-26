@@ -18,9 +18,10 @@ jobs:
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
-          data_file: |
-            ./actions/readme-templates/readme_shared_data.json
-            integration-manifest.json
+          data_file: integration-manifest.json
+          variables: |
+            display_names={"pam":"PAM Provider"}
+            descriptions={"pam":"ABOUT PAM PROVIDERS"}
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
         
