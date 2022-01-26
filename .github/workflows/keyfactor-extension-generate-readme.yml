@@ -14,7 +14,7 @@ jobs:
           repository: 'Keyfactor/actions'
           path: './actions/'
 
-      - uses: Keyfactor/jinja2-action@621c86d09e00d7aade50af4099777f1b58e27f18
+      - uses: Keyfactor/jinja2-action@d1a569f12c81cdb68fdc9fcd1e2f27d6a53c148d
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
