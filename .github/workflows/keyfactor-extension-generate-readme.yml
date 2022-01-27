@@ -13,23 +13,14 @@ jobs:
           submodules: recursive
           repository: 'Keyfactor/actions'
           path: './actions/'
-          
-      - name: Load shared Readme variables
-        id: load_jinja_vars
-        run: |
-          jinja_vars=$(cat << EOF
-          $(cat ./actions/readme-templates/readme_shared_data.json | jq -r 'to_entries[] | "\(.key)=\(.value)"')
-          EOF
-          )          
-          echo "JINJA_VARS<<EOF" >> $GITHUB_ENV
-          echo "$jinja_vars" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
 
       - uses: Keyfactor/jinja2-action@v1.2.0-multiple-data-files
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
-          data_file: integration-manifest.json                        
+          data_file: |
+            integration-manifest.json
+            ./actions/readme-templates/readme_shared_data.json
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
           
@@ -41,6 +32,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           add: README.md --force
-          commit_message: Update generated README
+          message: Update generated README
           author_name: Keyfactor
           author_email: keyfactor@keyfactor.github.io
