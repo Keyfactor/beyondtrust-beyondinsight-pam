@@ -29,10 +29,7 @@ jobs:
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
-          data_file: integration-manifest.json
-          variables: |
-            ${{ env.JINJA_VARS }}
-                        
+          data_file: integration-manifest.json                        
         env:
           GITHUB_TOKEN: ${{ secrets.SDK_SYNC_PAT }}
           
