@@ -25,7 +25,7 @@ jobs:
           echo "$jinja_vars" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - uses: Keyfactor/jinja2-action@d1a569f12c81cdb68fdc9fcd1e2f27d6a53c148d
+      - uses: Keyfactor/jinja2-action@v1.2.0
         with:
           template: ./actions/readme-templates/readme.md.tpl
           output_file: README.md
