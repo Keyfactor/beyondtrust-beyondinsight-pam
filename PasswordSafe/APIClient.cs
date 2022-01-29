@@ -17,6 +17,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -36,21 +37,23 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             NullValueHandling = NullValueHandling.Ignore
         };
 
-        public Client(string url, string username, string apiKey)
+        public Client(string url, string username, string apiKey, X509Certificate clientCert = null)
         {
-#if DEBUG
-            var handler = new HttpClientHandler();
-            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-#endif
-
             _url = url;
             _username = username;
             _apiKey = apiKey;
+
+            var handler = new HttpClientHandler();
+            if (clientCert != null)
+            {
+                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+                handler.ClientCertificates.Add(clientCert);
+            }
 #if DEBUG
-            _httpClient = new HttpClient(handler);
-#else
-            _httpClient = new HttpClient();
+            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 #endif
+
+            _httpClient = new HttpClient(handler);
             _httpClient.BaseAddress = new Uri(url);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"PS-Auth key={apiKey}; runas={username};");
             _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");

@@ -14,6 +14,7 @@
 
 using Keyfactor.Platform.Extensions;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 {
@@ -26,17 +27,42 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             string url = initializationInfo["Host"];
             string apiKey = initializationInfo["APIKey"];
             string username = initializationInfo["Username"];
+            string clientCertThumb = initializationInfo.GetValueOrDefault("ClientCertificate");
+            string clientCertPass = initializationInfo.GetValueOrDefault("ClientCertificatePassword");
 
             string systemId = instanceParameters["SystemID"];
             string accountId = instanceParameters["AccountID"];
+
+            X509Certificate clientCert = null;
+            if (!string.IsNullOrWhiteSpace(clientCertThumb))
+            {
+                // client cert was specified, load it for the HttpClient
+                using (X509Store userStore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
+                {
+                    userStore.Open(OpenFlags.OpenExistingOnly); // only look at existing certs
+
+                    X509Certificate2Collection foundCert = userStore.Certificates.Find(X509FindType.FindByThumbprint, clientCertPass, false);
+                    clientCert = new X509Certificate2(foundCert[0].RawData, clientCertPass, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.UserKeySet);
+                }
+            }
             
             string credential;
-            using(Client client = new Client(url, username, apiKey))
+            try
             {
-                bool access = client.StartPlatformAccess().Result;
+                using(Client client = new Client(url, username, apiKey, clientCert))
+                {
+                    bool access = client.StartPlatformAccess().Result;
 
-                int requestId = client.RequestCredential(systemId, accountId).Result;
-                credential = client.RetrieveCredential(requestId).Result;
+                    int requestId = client.RequestCredential(systemId, accountId).Result;
+                    credential = client.RetrieveCredential(requestId).Result;
+                }
+            }
+            finally
+            {
+                if (clientCert != null)
+                {
+                    clientCert.Dispose();
+                }
             }
 
             return credential;
