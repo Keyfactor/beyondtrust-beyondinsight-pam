@@ -3,4 +3,4 @@ on: [push, workflow_dispatch]
 
 jobs:
   update_readme:
-    uses: Keyfactor/actions/shared-workflows/generate-readme.yml@main
+    uses: Keyfactor/actions/.github/workflows/generate-readme.yml@main
