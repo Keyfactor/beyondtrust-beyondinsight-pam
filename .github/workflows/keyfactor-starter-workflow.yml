@@ -1,0 +1,6 @@
+name: Update README
+on: [push, workflow_dispatch]
+
+jobs:
+  update_readme:
+    uses: Keyfactor/actions/shared-workflows/generate-readme.yml@main
