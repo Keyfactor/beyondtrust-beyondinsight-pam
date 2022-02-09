@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Keyfactor.Logging;
 using Keyfactor.Platform.Extensions;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
@@ -24,6 +27,9 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 
         public string GetPassword(Dictionary<string, string> instanceParameters, Dictionary<string, string> initializationInfo)
         {
+            ILogger logger = LogHandler.GetClassLogger<PasswordSafePAM>();
+            logger.LogDebug($"PAM Provider {Name} - beginning PAM credential retrieval operation.");
+
             string url = initializationInfo["Host"];
             string apiKey = initializationInfo["APIKey"];
             string username = initializationInfo["Username"];
@@ -37,6 +43,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             if (!string.IsNullOrWhiteSpace(clientCertThumb))
             {
                 // client cert was specified, load it for the HttpClient
+                logger.LogDebug($"PAM Provider {Name} - using a Client Certificate for communication.");
                 using (X509Store userStore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
                 {
                     userStore.Open(OpenFlags.OpenExistingOnly); // only look at existing certs
@@ -51,11 +58,19 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             {
                 using(Client client = new Client(url, username, apiKey, clientCert))
                 {
+                    logger.LogDebug($"PAM Provider {Name} - starting platform access.");
                     bool access = client.StartPlatformAccess().Result;
 
+                    logger.LogDebug($"PAM Provider {Name} - requesting credentials.");
                     int requestId = client.RequestCredential(systemId, accountId).Result;
+                    logger.LogDebug($"PAM Provider {Name} - retrieving credential.");
                     credential = client.RetrieveCredential(requestId).Result;
                 }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, $"PAM Provider {Name} - Exception Ocurred: ");
+                throw e;
             }
             finally
             {
