@@ -49,11 +49,12 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                 handler.ClientCertificates.Add(clientCert);
             }
 #if DEBUG
-            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => { return true; };
 #endif
 
             _httpClient = new HttpClient(handler);
             _httpClient.BaseAddress = new Uri(url);
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"PS-Auth key={apiKey}; runas={username};");
             _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");
         }
