@@ -59,12 +59,13 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                 using(Client client = new Client(url, username, apiKey, clientCert))
                 {
                     logger.LogDebug($"PAM Provider {Name} - starting platform access.");
-                    bool access = client.StartPlatformAccess().Result;
+                    bool access = client.StartPlatformAccess();
 
                     logger.LogDebug($"PAM Provider {Name} - requesting credentials.");
-                    int requestId = client.RequestCredential(systemId, accountId).Result;
+                    int requestId = client.RequestCredential(systemId, accountId);
+
                     logger.LogDebug($"PAM Provider {Name} - retrieving credential.");
-                    credential = client.RetrieveCredential(requestId).Result;
+                    credential = client.RetrieveCredential(requestId);
                 }
             }
             catch (Exception e)

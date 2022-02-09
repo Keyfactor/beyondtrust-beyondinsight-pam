@@ -59,7 +59,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");
         }
 
-        public async Task<int> RequestCredential(string systemId, string accountId)
+        public int RequestCredential(string systemId, string accountId)
         {
             API.NewRequest credentialRequest = new API.NewRequest
             {
@@ -70,35 +70,35 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             };
 
             StringContent content = new StringContent(JsonConvert.SerializeObject(credentialRequest, serializerSettings), Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync("Requests", content);
-            int credentialRequestResponse = await GetResponseAsync<int>(response);
+            HttpResponseMessage response = _httpClient.PostAsync("Requests", content).Result;
+            int credentialRequestResponse = GetResponse<int>(response);
 
             return credentialRequestResponse; 
         }
 
-        public async Task<string> RetrieveCredential(int requestId)
+        public string RetrieveCredential(int requestId)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"Credentials/{requestId}");
-            string credential = await GetResponseAsync<string>(response);
+            HttpResponseMessage response = _httpClient.GetAsync($"Credentials/{requestId}").Result;
+            string credential = GetResponse<string>(response);
             return credential;
         }
 
-        public async Task<bool> StartPlatformAccess()
+        public bool StartPlatformAccess()
         {
-            HttpResponseMessage response = await _httpClient.PostAsync("Auth/SignAppin", null);
-            API.UserSession session = await GetResponseAsync<API.UserSession>(response);
+            HttpResponseMessage response = _httpClient.PostAsync("Auth/SignAppin", null).Result;
+            API.UserSession session = GetResponse<API.UserSession>(response);
             return true; // if reached, platform session was started successfully
         }
 
-        private async void EndPlatformAccess()
+        private void EndPlatformAccess()
         {
-            HttpResponseMessage response = await _httpClient.PostAsync("Auth/Signout", null);
-            EnsureSuccessfulResponse(response, await response.Content.ReadAsStreamAsync());
+            HttpResponseMessage response = _httpClient.PostAsync("Auth/Signout", null).Result;
+            EnsureSuccessfulResponse(response, response.Content.ReadAsStreamAsync().Result);
         }
 
-        private async Task<T> GetResponseAsync<T>(HttpResponseMessage response)
+        private T GetResponse<T>(HttpResponseMessage response)
         {
-            Stream content = await response.Content.ReadAsStreamAsync();
+            Stream content = response.Content.ReadAsStreamAsync().Result;
             EnsureSuccessfulResponse(response, content);
             string stringResponse = new StreamReader(content).ReadToEnd();
             return JsonConvert.DeserializeObject<T>(stringResponse);
