@@ -33,7 +33,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             string systemId = instanceParameters["SystemID"];
             string accountId = instanceParameters["AccountID"];
 
-            X509Certificate clientCert = null;
+            X509Certificate2 clientCert = null;
             if (!string.IsNullOrWhiteSpace(clientCertThumb))
             {
                 // client cert was specified, load it for the HttpClient
@@ -41,8 +41,8 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                 {
                     userStore.Open(OpenFlags.OpenExistingOnly); // only look at existing certs
 
-                    X509Certificate2Collection foundCert = userStore.Certificates.Find(X509FindType.FindByThumbprint, clientCertPass, false);
-                    clientCert = new X509Certificate2(foundCert[0].RawData, clientCertPass, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.UserKeySet);
+                    X509Certificate2Collection foundCert = userStore.Certificates.Find(X509FindType.FindByThumbprint, clientCertThumb, false);
+                    clientCert = foundCert[0];
                 }
             }
             

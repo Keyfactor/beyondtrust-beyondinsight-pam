@@ -37,7 +37,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             NullValueHandling = NullValueHandling.Ignore
         };
 
-        public Client(string url, string username, string apiKey, X509Certificate clientCert = null)
+        public Client(string url, string username, string apiKey, X509Certificate2 clientCert = null)
         {
             _url = url;
             _username = username;
@@ -46,7 +46,6 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             var handler = new HttpClientHandler();
             if (clientCert != null)
             {
-                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 handler.ClientCertificates.Add(clientCert);
             }
 #if DEBUG
