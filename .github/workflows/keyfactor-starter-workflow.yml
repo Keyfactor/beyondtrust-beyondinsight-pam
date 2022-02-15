@@ -1,7 +1,5 @@
 name: Starter Workflow
 on: [workflow_dispatch, push, pull_request]
-env:
-  build_dir: PasswordSafe/bin/Release/netstandard2.0 # build output directory to upload as a release, relative to checkout workspace
 
 jobs:
   call-create-github-release-workflow:
@@ -14,7 +12,7 @@ jobs:
     with:
       release_version: ${{ needs.call-create-github-release-workflow.outputs.release_version }}
       release_url: ${{ needs.call-create-github-release-workflow.outputs.release_url }}
-      release_dir: ${{ env.build_dir }}
+      release_dir: PasswordSafe/bin/Release/netstandard2.0 # build output directory to upload as a release, relative to checkout workspace
 
   call-dotnet-build-no-release:
     # special scenario for basic build without any release artifacts
