@@ -59,12 +59,20 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");
         }
 
-        public int RequestCredential(string systemId, string accountId)
+        public API.ManagedAccount GetAccount(string systemName, string accountName)
+        {
+            HttpResponseMessage response = _httpClient.GetAsync($"ManagedAccounts?systemName={systemName}&accountName={accountName}").Result;
+            API.ManagedAccount account = GetResponse<API.ManagedAccount>(response);
+
+            return account;
+        }
+
+        public int RequestCredential(int systemId, int accountId)
         {
             API.NewRequest credentialRequest = new API.NewRequest
             {
-                SystemID = int.Parse(systemId),
-                AccountID = int.Parse(accountId),
+                SystemID = systemId,
+                AccountID = accountId,
                 DurationMinutes = 1, // need to check for duplicate open requests during this window to prevent 409 Conflict response
                 Reason = "Automated request for Keyfactor PAM Provider plugin"
             };

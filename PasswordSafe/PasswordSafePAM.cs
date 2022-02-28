@@ -36,10 +36,10 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             string clientCertThumb = initializationInfo["ClientCertificate"];
             string clientCertPass = initializationInfo["ClientCertificatePassword"];
 
-            string systemId = instanceParameters["SystemID"];
-            string accountId = instanceParameters["AccountID"];
+            string systemName = instanceParameters["SystemName"];
+            string accountName = instanceParameters["AccountName"];
 
-            X509Certificate2 clientCert = null;
+            X509Certificate2 clientCert = null; 
             if (!string.IsNullOrWhiteSpace(clientCertThumb))
             {
                 // client cert was specified, load it for the HttpClient
@@ -61,8 +61,11 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                     logger.LogDebug($"PAM Provider {Name} - starting platform access.");
                     bool access = client.StartPlatformAccess();
 
+                    logger.LogDebug($"PAM Provider {Name} - finding managed account.");
+                    API.ManagedAccount account = client.GetAccount(systemName, accountName);
+
                     logger.LogDebug($"PAM Provider {Name} - requesting credentials.");
-                    int requestId = client.RequestCredential(systemId, accountId);
+                    int requestId = client.RequestCredential(account.SystemId, account.AccountId);
 
                     logger.LogDebug($"PAM Provider {Name} - retrieving credential.");
                     credential = client.RetrieveCredential(requestId);
