@@ -23,7 +23,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 {
     public class PasswordSafePAM : IPAMProvider
     {
-        public string Name => "BeyondInsight-PasswordSafe";
+        public string Name => "BeyondTrust-PasswordSafe";
 
         public string GetPassword(Dictionary<string, string> instanceParameters, Dictionary<string, string> initializationInfo)
         {
@@ -34,12 +34,15 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             string apiKey = initializationInfo["APIKey"];
             string username = initializationInfo["Username"];
             string clientCertThumb = initializationInfo["ClientCertificate"];
-            string clientCertPass = initializationInfo["ClientCertificatePassword"];
 
             string systemName = instanceParameters["SystemName"];
             string accountName = instanceParameters["AccountName"];
 
-            X509Certificate2 clientCert = null; 
+            // optional AWS parameters
+            bool awsAccessKey = instanceParameters.ContainsKey("IsAWSAccessKey") && bool.Parse(instanceParameters["IsAWSAccessKey"]);
+            bool awsSecretKey = instanceParameters.ContainsKey("IsAWSSecretKey") && bool.Parse(instanceParameters["IsAWSSecretKey"]);
+
+            X509Certificate2 clientCert = null;
             if (!string.IsNullOrWhiteSpace(clientCertThumb))
             {
                 // client cert was specified, load it for the HttpClient
@@ -82,6 +85,21 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                 {
                     clientCert.Dispose();
                 }
+            }
+
+            // post-processing for AWS use cases
+            // Access Key and Secret Key are stored together with specific type of separator
+
+            if (awsAccessKey)
+            {
+                // get value before separator
+                return credential.Split(new char[] { ' ', ';', ':' }, 2)[0];
+            }
+
+            if (awsSecretKey)
+            {
+                // get value after separator
+                return credential.Split(new char[] { ' ', ';', ':' }, 2)[1];
             }
 
             return credential;
