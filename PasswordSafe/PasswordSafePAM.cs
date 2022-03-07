@@ -33,7 +33,9 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             string url = initializationInfo["Host"];
             string apiKey = initializationInfo["APIKey"];
             string username = initializationInfo["Username"];
-            string clientCertThumb = initializationInfo["ClientCertificate"];
+
+            // optional parameter
+            string clientCertThumb = initializationInfo.ContainsKey("ClientCertificate") ? initializationInfo["ClientCertificate"] : null;
 
             string systemName = instanceParameters["SystemName"];
             string accountName = instanceParameters["AccountName"];
