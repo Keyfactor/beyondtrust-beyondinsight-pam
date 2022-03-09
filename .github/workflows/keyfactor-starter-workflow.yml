@@ -14,11 +14,11 @@ jobs:
       release_dir: PasswordSafe/bin/Release/netstandard2.0 # build output directory to upload as a release, relative to checkout workspace
 
   call-generate-readme-workflow:
-    if: github.event_name == 'push' # run on a push update
+    if: github.event_name == 'push'
     uses: Keyfactor/actions/.github/workflows/generate-readme.yml@main
 
   call-update-catalog-workflow:
-    if: github.event_name = 'push' # run on a push update
+    if: github.event_name = 'push'
     uses: Keyfactor/actions/.github/workflows/update-catalog.yml@main
     secrets: 
       token: secrets.SDK_SYNC_PAT
