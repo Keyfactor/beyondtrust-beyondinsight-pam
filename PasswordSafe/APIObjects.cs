@@ -30,11 +30,6 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.API
         public int DurationMinutes { get; set; }
     }
 
-    public class Credential
-    {
-        public string Credentials { get; set; }
-    }
-
     public class NewRequest
     {
         public int SystemID { get; set; }
@@ -42,26 +37,16 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.API
         public int DurationMinutes { get; set; }
         public string Reason { get; set; }
     }
-
-    public class CreatedRequest
-    {
-        public int RequestID { get; set; }
-    }
     
-    public class Request
+    public class ManagedAccount
     {
-        public int RequestID { get; set; }
-        public int SystemID { get; set; }
+        public int SystemId { get; set; }
         public string SystemName { get; set; }
-        public int AccountID { get; set; }
+        public int AccountId { get; set; }
         public string AccountName { get; set; }
         public string DomainName { get; set; }
-        public int AliasID { get; set; }
         public int ApplicationID { get; set; }
-        public string RequestReleaseDate { get; set; }
-        public string ApprovedDate { get; set; }
-        public string ExpiresDate { get; set; }
-        public string Status { get; set; }
-        public string AccessType { get; set; }
+        public int DefaultReleaseDuration { get; set; }
+        public int MaximumReleaseDuration { get; set; }
     }
 }
