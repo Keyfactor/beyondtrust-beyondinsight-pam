@@ -18,7 +18,7 @@ jobs:
     uses: Keyfactor/actions/.github/workflows/generate-readme.yml@main
 
   call-update-catalog-workflow:
-    if: github.event_name = 'push'
+    if: github.event_name == 'push'
     uses: Keyfactor/actions/.github/workflows/update-catalog.yml@main
     secrets: 
       token: secrets.SDK_SYNC_PAT
