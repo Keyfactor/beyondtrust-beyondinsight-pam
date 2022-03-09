@@ -3,7 +3,6 @@ on: [workflow_dispatch, push, pull_request]
 
 jobs:
   call-create-github-release-workflow:
-    if: github.event_name == 'pull_request'
     uses: Keyfactor/actions/.github/workflows/github-release.yml@main
 
   call-dotnet-build-and-release-workflow:
@@ -14,15 +13,12 @@ jobs:
       release_url: ${{ needs.call-create-github-release-workflow.outputs.release_url }}
       release_dir: PasswordSafe/bin/Release/netstandard2.0 # build output directory to upload as a release, relative to checkout workspace
 
-  call-dotnet-build-no-release:
-    # special scenario for basic build without any release artifacts
-    if: github.event_name == 'push'
-    uses: Keyfactor/actions/.github/workflows/dotnet-build-and-release.yml@main
-
   call-generate-readme-workflow:
-    if: github.event_name == 'push' # run on any old push
+    if: github.event_name == 'push' # run on a push update
     uses: Keyfactor/actions/.github/workflows/generate-readme.yml@main
 
-  #call-update-catalog-workflow:
-  #  if: github.event_name = 'push' # run on any old push
-  #  uses: Keyfactor/acitons/.github/workflows/update-catalog.yml@main
+  call-update-catalog-workflow:
+    if: github.event_name = 'push' # run on a push update
+    uses: Keyfactor/acitons/.github/workflows/update-catalog.yml@main
+    secrets: 
+      token: secrets.SDK_SYNC_PAT
