@@ -19,6 +19,6 @@ jobs:
 
   call-update-catalog-workflow:
     if: github.event_name = 'push' # run on a push update
-    uses: Keyfactor/acitons/.github/workflows/update-catalog.yml@main
+    uses: Keyfactor/actions/.github/workflows/update-catalog.yml@main
     secrets: 
       token: secrets.SDK_SYNC_PAT
