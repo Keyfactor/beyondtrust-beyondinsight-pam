@@ -7,12 +7,12 @@ If you have a hosted environment or need assistance completing this step, please
 ### Configuring Parameters
 The following are the parameter names and a description of the values needed to configure the Beyond Trust Password Safe PAM Provider.
 
-| Initialization parameter | Description | Instance parameter | Description |
-| :---: | --- | :---: | --- |
-| Host | The IP address or URL of the BeyondTrust instance, including the API endpoint | SystemId | The ID of the system that holds the requested credential |
-| APIKey | The base64 encode API registration key from BeyondTrust | AccountId | The ID of the account on the system, whose password will be retrieved |
-| Username | The username that the API request will be run as. This user needs to have sufficient permissions on the API key and the credentials to request | IsAWSAccessKey | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the first part before a separator (' ', ':', ';') |
-| ClientCertificate | (OPTIONAL) The thumbprint for a client certificate to authenticate with BeyondTrust. Can be blank. Certificate should be present with exportable private key in the User's Personal store. | IsAWSSecretKey | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the second part after a separator (' ', ':', ';') |
+| Initialization parameter | Display Name | Description | Instance parameter | Display Name | Description |
+| :---: | :---: | --- | :---: | :---: | --- |
+| Host | BeyondTrust Host | The IP address or URL of the BeyondTrust instance, including the API endpoint | SystemId | BeyondTrust System ID | The ID of the system that holds the requested credential |
+| APIKey | BeyondTrust API Key | The base64 encode API registration key from BeyondTrust | AccountId | BeyondTrust Account ID | The ID of the account on the system, whose password will be retrieved |
+| Username | BeyondTrust Username | The username that the API request will be run as. This user needs to have sufficient permissions on the API key and the credentials to request | IsAWSAccessKey | Is an AWS Access Key | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the first part before a separator (' ', ':', ';') |
+| ClientCertificate | BeyondTrust Client Certificate Thumbprint | (OPTIONAL) The thumbprint for a client certificate to authenticate with BeyondTrust. Can be blank. Certificate should be present with exportable private key in the User's Personal store. | IsAWSSecretKey | Is an AWS Secret Key | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the second part after a separator (' ', ':', ';') |
 
 
 ### Configuring for PAM Usage
