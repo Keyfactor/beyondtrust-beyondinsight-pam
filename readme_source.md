@@ -1,3 +1,9 @@
+### Initial Configuration of PAM Provider
+In order to allow Keyfactor to use the new Hashicorp-Vault PAM Provider, the definition needs to be added to the application database.
+This is done by running the provided [add_PAMProvider.sql](./PasswordSafe/add_PAMProvider.sql) script on the Keyfactor application database, which only needs to be done one time.
+
+If you have a hosted environment or need assistance completing this step, please contact Keyfactor Support.
+
 ### Configuring Parameters
 The following are the parameter names and a description of the values needed to configure the Beyond Trust Password Safe PAM Provider.
 
@@ -21,7 +27,7 @@ The names given to the Managed System and Managed Account will later be used to 
 
 #### In Keyfactor - PAM Provider
 ##### Installation
-In order to setup a new PAM Provider in the Keyfactor Platform for the first time, you will need to run [the SQL Installation Script]() against your Keyfactor application database.
+In order to setup a new PAM Provider in the Keyfactor Platform for the first time, you will need to run [the SQL Installation Script](./PasswordSafe/add_PAMProvider.sql) against your Keyfactor application database.
 
 Take note, that when defining the PAM Provider you can choose to include parameters that are meant for special handling of AWS Credentials. This definition should be used if PAM instances will be configured that will retrieve AWS Credentials.
 
