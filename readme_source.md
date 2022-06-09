@@ -1,5 +1,5 @@
 ### Initial Configuration of PAM Provider
-In order to allow Keyfactor to use the new Hashicorp-Vault PAM Provider, the definition needs to be added to the application database.
+In order to allow Keyfactor to use the new BeyondTrust-PasswordSafe PAM Provider, the definition needs to be added to the application database.
 This is done by running the provided [add_PAMProvider.sql](./PasswordSafe/add_PAMProvider.sql) script on the Keyfactor application database, which only needs to be done one time.
 
 If you have a hosted environment or need assistance completing this step, please contact Keyfactor Support.
@@ -31,7 +31,7 @@ In order to setup a new PAM Provider in the Keyfactor Platform for the first tim
 
 Take note, that when defining the PAM Provider you can choose to include parameters that are meant for special handling of AWS Credentials. This definition should be used if PAM instances will be configured that will retrieve AWS Credentials.
 
-After the installation is run, the DLLs need to be installed to the correct location for the PAM Provider to function. From the release, the `hashicorp-vault-pam.dll` should be copied to the following folder locations in the Keyfactor installation. Once the DLL has been copied to these folders, edit the corresponding config file. You will need to add a new Unity entry as follows under `<container>`, next to other `<register>` tags.
+After the installation is run, the DLLs need to be installed to the correct location for the PAM Provider to function. From the release, the `PasswordSafe.dll` should be copied to the following folder locations in the Keyfactor installation. Once the DLL has been copied to these folders, edit the corresponding config file. You will need to add a new Unity entry as follows under `<container>`, next to other `<register>` tags.
 
 When enabling a PAM provider for Orchestrators only, the first line for `WebAgentServices` is the only installation needed.
 
