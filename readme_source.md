@@ -1,12 +1,18 @@
+### Initial Configuration of PAM Provider
+In order to allow Keyfactor to use the new BeyondTrust-PasswordSafe PAM Provider, the definition needs to be added to the application database.
+This is done by running the provided [add_PAMProvider.sql](./PasswordSafe/add_PAMProvider.sql) script on the Keyfactor application database, which only needs to be done one time.
+
+If you have a hosted environment or need assistance completing this step, please contact Keyfactor Support.
+
 ### Configuring Parameters
 The following are the parameter names and a description of the values needed to configure the Beyond Trust Password Safe PAM Provider.
 
-| Initialization parameter | Description | Instance parameter | Description |
-| :---: | --- | :---: | --- |
-| Host | The IP address or URL of the BeyondTrust instance, including the API endpoint | SystemName | The name of the system that holds the requested credential |
-| APIKey | The base64 encode API registration key from BeyondTrust | AccountName | The name of the account on the system, whose password will be retrieved |
-| Username | The username that the API request will be run as. This user needs to have sufficient permissions on the API key and the credentials to request | IsAWSAccessKey | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the first part before a separator (' ', ':', ';') |
-| ClientCertificate | (OPTIONAL) The thumbprint for a client certificate to authenticate with BeyondTrust. Can be blank. Certificate should be present with exportable private key in the User's Personal store. | IsAWSSecretKey | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the second part after a separator (' ', ':', ';') |
+| Initialization parameter | Display Name | Description | Instance parameter | Display Name | Description |
+| :---: | :---: | --- | :---: | :---: | --- |
+| Host | BeyondTrust Host | The IP address or URL of the BeyondTrust instance, including the API endpoint | SystemId | BeyondTrust System ID | The ID of the system that holds the requested credential |
+| APIKey | BeyondTrust API Key | The base64 encode API registration key from BeyondTrust | AccountId | BeyondTrust Account ID | The ID of the account on the system, whose password will be retrieved |
+| Username | BeyondTrust Username | The username that the API request will be run as. This user needs to have sufficient permissions on the API key and the credentials to request | IsAWSAccessKey | Is an AWS Access Key | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the first part before a separator (' ', ':', ';') |
+| ClientCertificate | BeyondTrust Client Certificate Thumbprint | (OPTIONAL) The thumbprint for a client certificate to authenticate with BeyondTrust. Can be blank. Certificate should be present with exportable private key in the User's Personal store. | IsAWSSecretKey | Is an AWS Secret Key | (OPTIONAL) If set, will interpret the credential retrieved as a concatenated AWS Access Key and Secret Key, and retrieve the second part after a separator (' ', ':', ';') |
 
 
 ### Configuring for PAM Usage
@@ -20,6 +26,35 @@ After defining the necessary Functional Account to handle Managed System actions
 The names given to the Managed System and Managed Account will later be used to lookup the credentials in the PAM Provider plugin.
 
 #### In Keyfactor - PAM Provider
-This new PAM Provider implementation will need to be added to an existing Keyfactor installation by inserting the PAM Provider definition into the application database with the included SQL script.
+##### Installation
+In order to setup a new PAM Provider in the Keyfactor Platform for the first time, you will need to run [the SQL Installation Script](./PasswordSafe/add_PAMProvider.sql) against your Keyfactor application database.
+
 Take note, that when defining the PAM Provider you can choose to include parameters that are meant for special handling of AWS Credentials. This definition should be used if PAM instances will be configured that will retrieve AWS Credentials.
-After creating the record of the PAM Provider implementation in the Keyfactor application database, new PAM Providers of the Beyond Trust type can be added as normal in the Keyfactor Platform.
+
+After the installation is run, the DLLs need to be installed to the correct location for the PAM Provider to function. From the release, the `PasswordSafe.dll` should be copied to the following folder locations in the Keyfactor installation. Once the DLL has been copied to these folders, edit the corresponding config file. You will need to add a new Unity entry as follows under `<container>`, next to other `<register>` tags.
+
+When enabling a PAM provider for Orchestrators only, the first line for `WebAgentServices` is the only installation needed.
+
+The Keyfactor service and IIS Server should be restarted after making these changes.
+
+```xml
+<register type="IPAMProvider" mapTo="Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.PasswordSafePAM, PasswordSafe" name="BeyondTrust-PasswordSafe" />
+```
+
+| Install Location | DLL Binary Folder | Config File |
+| --- | --- | --- |
+| WebAgentServices | WebAgentServices\bin\ | WebAgentServices\web.config |
+| Service | Service\ | Service\CMSTimerService.exe.config |
+| KeyfactorAPI | KeyfactorAPI\bin\ | KeyfactorAPI\web.config |
+| WebConsole | WebConsole\bin\ | WebConsole\web.config |
+
+##### Usage
+In order to use the PAM Provider, the provider's configuration must be set in the Keyfactor Platform. In the settings menu (upper right cog) you can select the ___Priviledged Access Management___ option to configure your provider instance.
+
+![](images/pam-setting.png)
+
+![](images/beyondtrust-config.png)
+
+After it is set up, you can now use your PAM Provider when configuring certificate stores. Any field that is treated as a Keyfactor secret, such as server passwords and certificate store passwords can be retrieved from your PAM Provider instead of being entered in directly as a secret.
+
+![](images/beyondtrust-password.png)
