@@ -37,7 +37,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             NullValueHandling = NullValueHandling.Ignore
         };
 
-        public Client(string url, string username, string apiKey, X509Certificate clientCert = null)
+        public Client(string url, string username, string apiKey, X509Certificate2 clientCert = null)
         {
             _url = url;
             _username = username;
@@ -46,59 +46,67 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             var handler = new HttpClientHandler();
             if (clientCert != null)
             {
-                handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 handler.ClientCertificates.Add(clientCert);
             }
 #if DEBUG
-            handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            handler.ServerCertificateCustomValidationCallback = (a, b, c, d) => { return true; };
 #endif
 
             _httpClient = new HttpClient(handler);
             _httpClient.BaseAddress = new Uri(url);
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"PS-Auth key={apiKey}; runas={username};");
             _httpClient.DefaultRequestHeaders.Add("ContentType", "application/json");
         }
 
-        public async Task<int> RequestCredential(string systemId, string accountId)
+        public API.ManagedAccount GetAccount(string systemName, string accountName)
+        {
+            HttpResponseMessage response = _httpClient.GetAsync($"ManagedAccounts?systemName={systemName}&accountName={accountName}").Result;
+            API.ManagedAccount account = GetResponse<API.ManagedAccount>(response);
+
+            return account;
+        }
+
+        public int RequestCredential(int systemId, int accountId)
         {
             API.NewRequest credentialRequest = new API.NewRequest
             {
-                SystemID = int.Parse(systemId),
-                AccountID = int.Parse(accountId),
+                SystemID = systemId,
+                AccountID = accountId,
                 DurationMinutes = 1, // need to check for duplicate open requests during this window to prevent 409 Conflict response
                 Reason = "Automated request for Keyfactor PAM Provider plugin"
             };
 
             StringContent content = new StringContent(JsonConvert.SerializeObject(credentialRequest, serializerSettings), Encoding.UTF8, "application/json");
-            HttpResponseMessage response = await _httpClient.PostAsync("Requests", content);
-            int credentialRequestResponse = await GetResponseAsync<int>(response);
+            HttpResponseMessage response = _httpClient.PostAsync("Requests", content).Result;
+            int credentialRequestResponse = GetResponse<int>(response);
 
             return credentialRequestResponse; 
         }
 
-        public async Task<string> RetrieveCredential(int requestId)
+        public string RetrieveCredential(int requestId)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"Credentials/{requestId}");
-            string credential = await GetResponseAsync<string>(response);
+            HttpResponseMessage response = _httpClient.GetAsync($"Credentials/{requestId}").Result;
+            string credential = GetResponse<string>(response);
             return credential;
         }
 
-        public async Task<bool> StartPlatformAccess()
+        public bool StartPlatformAccess()
         {
-            HttpResponseMessage response = await _httpClient.PostAsync("Auth/SignAppin", null);
-            API.UserSession session = await GetResponseAsync<API.UserSession>(response);
+            HttpResponseMessage response = _httpClient.PostAsync("Auth/SignAppin", null).Result;
+            API.UserSession session = GetResponse<API.UserSession>(response);
             return true; // if reached, platform session was started successfully
         }
 
-        private async void EndPlatformAccess()
+        private void EndPlatformAccess()
         {
-            HttpResponseMessage response = await _httpClient.PostAsync("Auth/Signout", null);
-            EnsureSuccessfulResponse(response, await response.Content.ReadAsStreamAsync());
+            HttpResponseMessage response = _httpClient.PostAsync("Auth/Signout", null).Result;
+            EnsureSuccessfulResponse(response, response.Content.ReadAsStreamAsync().Result);
         }
 
-        private async Task<T> GetResponseAsync<T>(HttpResponseMessage response)
+        private T GetResponse<T>(HttpResponseMessage response)
         {
-            Stream content = await response.Content.ReadAsStreamAsync();
+            Stream content = response.Content.ReadAsStreamAsync().Result;
             EnsureSuccessfulResponse(response, content);
             string stringResponse = new StreamReader(content).ReadToEnd();
             return JsonConvert.DeserializeObject<T>(stringResponse);

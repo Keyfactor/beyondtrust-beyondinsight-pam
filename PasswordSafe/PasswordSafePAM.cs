@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Keyfactor.Logging;
 using Keyfactor.Platform.Extensions;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 
@@ -20,29 +23,38 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 {
     public class PasswordSafePAM : IPAMProvider
     {
-        public string Name => "BeyondInsight-PasswordSafe";
+        public string Name => "BeyondTrust-PasswordSafe";
 
         public string GetPassword(Dictionary<string, string> instanceParameters, Dictionary<string, string> initializationInfo)
         {
+            ILogger logger = LogHandler.GetClassLogger<PasswordSafePAM>();
+            logger.LogDebug($"PAM Provider {Name} - beginning PAM credential retrieval operation.");
+
             string url = initializationInfo["Host"];
             string apiKey = initializationInfo["APIKey"];
             string username = initializationInfo["Username"];
-            string clientCertThumb = initializationInfo.GetValueOrDefault("ClientCertificate");
-            string clientCertPass = initializationInfo.GetValueOrDefault("ClientCertificatePassword");
 
-            string systemId = instanceParameters["SystemID"];
-            string accountId = instanceParameters["AccountID"];
+            // optional parameter
+            string clientCertThumb = initializationInfo.ContainsKey("ClientCertificate") ? initializationInfo["ClientCertificate"] : null;
 
-            X509Certificate clientCert = null;
+            int systemId = int.Parse(instanceParameters["SystemId"]);
+            int accountId = int.Parse(instanceParameters["AccountId"]);
+
+            // optional AWS parameters
+            bool awsAccessKey = instanceParameters.ContainsKey("IsAWSAccessKey") && bool.Parse(instanceParameters["IsAWSAccessKey"]);
+            bool awsSecretKey = instanceParameters.ContainsKey("IsAWSSecretKey") && bool.Parse(instanceParameters["IsAWSSecretKey"]);
+
+            X509Certificate2 clientCert = null;
             if (!string.IsNullOrWhiteSpace(clientCertThumb))
             {
                 // client cert was specified, load it for the HttpClient
+                logger.LogDebug($"PAM Provider {Name} - using a Client Certificate for communication.");
                 using (X509Store userStore = new X509Store(StoreName.My, StoreLocation.CurrentUser))
                 {
                     userStore.Open(OpenFlags.OpenExistingOnly); // only look at existing certs
 
-                    X509Certificate2Collection foundCert = userStore.Certificates.Find(X509FindType.FindByThumbprint, clientCertPass, false);
-                    clientCert = new X509Certificate2(foundCert[0].RawData, clientCertPass, X509KeyStorageFlags.Exportable | X509KeyStorageFlags.UserKeySet);
+                    X509Certificate2Collection foundCert = userStore.Certificates.Find(X509FindType.FindByThumbprint, clientCertThumb, false);
+                    clientCert = foundCert[0];
                 }
             }
             
@@ -51,11 +63,20 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             {
                 using(Client client = new Client(url, username, apiKey, clientCert))
                 {
-                    bool access = client.StartPlatformAccess().Result;
+                    logger.LogDebug($"PAM Provider {Name} - starting platform access.");
+                    bool access = client.StartPlatformAccess();
 
-                    int requestId = client.RequestCredential(systemId, accountId).Result;
-                    credential = client.RetrieveCredential(requestId).Result;
+                    logger.LogDebug($"PAM Provider {Name} - requesting credentials.");
+                    int requestId = client.RequestCredential(systemId, accountId);
+
+                    logger.LogDebug($"PAM Provider {Name} - retrieving credential.");
+                    credential = client.RetrieveCredential(requestId);
                 }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, $"PAM Provider {Name} - Exception Ocurred: ");
+                throw e;
             }
             finally
             {
@@ -63,6 +84,21 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
                 {
                     clientCert.Dispose();
                 }
+            }
+
+            // post-processing for AWS use cases
+            // Access Key and Secret Key are stored together with specific type of separator
+
+            if (awsAccessKey)
+            {
+                // get value before separator
+                return credential.Split(new char[] { ' ', ';', ':' }, 2)[0];
+            }
+
+            if (awsSecretKey)
+            {
+                // get value after separator
+                return credential.Split(new char[] { ' ', ';', ':' }, 2)[1];
             }
 
             return credential;
