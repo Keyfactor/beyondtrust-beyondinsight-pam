@@ -4,18 +4,6 @@ on: [workflow_dispatch, push, pull_request]
 jobs:
   call-create-github-release-workflow:
     uses: Keyfactor/actions/.github/workflows/github-release.yml@main
-  get-manifest-properties:
-    runs-on: windows-latest
-    outputs:
-      update_catalog: ${{ steps.read-json.outputs.prop }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Read json
-        id: read-json
-        shell: pwsh
-        run: |
-          $json = Get-Content integration-manifest.json | ConvertFrom-Json
-          echo "::set-output name=prop::$(echo $json.update_catalog)"
 
   get-manifest-properties:
     runs-on: windows-latest
