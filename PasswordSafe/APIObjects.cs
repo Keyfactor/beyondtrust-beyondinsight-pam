@@ -1,4 +1,4 @@
-﻿// Copyright 2021 Keyfactor
+﻿// Copyright 2023 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.API
         public int AccountID { get; set; }
         public int DurationMinutes { get; set; }
         public string Reason { get; set; }
+        public string ConflictOption { get; set; }
     }
     
     public class ManagedAccount
