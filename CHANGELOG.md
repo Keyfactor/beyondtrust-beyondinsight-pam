@@ -1,3 +1,6 @@
+v1.1.0
+- Reuse existing requests to avoid conflicts whe opening new credential request
+
 v1.0.0
 - Initial release
 - Supports retrieving credentials from Password Safe using a System name and Account name
