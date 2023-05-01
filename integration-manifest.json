@@ -1,10 +1,61 @@
 {
   "$schema": "https://keyfactor.github.io/integration-manifest-schema.json",
   "integration_type": "pam",
-  "name": "BeyondTrust Password Safe",
+  "name": "BeyondTrust Password Safe PAM Provider",
   "status": "production",
   "link_github": true,
   "update_catalog": true,
   "support_level": "kf-supported",
-  "description": "The BeyondTrust Password Safe PAM Provider allows for the retrieval of stored account credentials from the Password Safe solution. A valid API registration in BeyondTrust is used to open a request and retrieve credentials for a given account on a system."
+  "description": "The BeyondTrust Password Safe PAM Provider allows for the retrieval of stored account credentials from the Password Safe solution. A valid API registration in BeyondTrust is used to open a request and retrieve credentials for a given account on a system.",
+  "about": {
+    "pam": {
+      "providerName": "BeyondTrust Password Safe PAM Provider",
+      "assemblyName": "beyondtrust-beyondinsight-pam",
+      "dbName": "BeyondTrust-PasswordSafe",
+      "fullyQualifiedClassName": "Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.PasswordSafePAM",
+      "pam_types": {
+        "BeyondTrust-PasswordSafe": {
+          "Name": "BeyondTrust-PasswordSafe",
+          "Parameters": [
+            {
+              "Name": "Host",
+              "DisplayName": "BeyondTrust Host",
+              "DataType": 1,
+              "InstanceLevel": false
+            },
+            {
+              "Name": "APIKey",
+              "DisplayName": "BeyondTrust API Key",
+              "DataType": 2,
+              "InstanceLevel": false
+            },
+            {
+              "Name": "Username",
+              "DisplayName": "BeyondTrust Username",
+              "DataType": 1,
+              "InstanceLevel": false
+            },
+            {
+              "Name": "ClientCertificate",
+              "DisplayName": "BeyondTrust Client Certificate Thumbprint",
+              "DataType": 1,
+              "InstanceLevel": false
+            },
+            {
+              "Name": "SystemId",
+              "DisplayName": "BeyondTrust System ID",
+              "DataType": 1,
+              "InstanceLevel": true
+            },
+            {
+              "Name": "AccountId",
+              "DisplayName": "BeyondTrust Account ID",
+              "DataType": 1,
+              "InstanceLevel": true
+            }
+          ]
+        }
+      }
+    }
+  }
 }
