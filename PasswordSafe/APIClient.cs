@@ -1,4 +1,4 @@
-// Copyright 2021 Keyfactor
+// Copyright 2023 Keyfactor
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,23 +14,15 @@
 
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 {
     public class Client : IDisposable
-    {
-        private string _apiKey;
-        private string _username;
-        private string _url;
-        private bool _sessionStarted = false;
-        
+    {        
         private HttpClient _httpClient { get; }
         private readonly JsonSerializerSettings serializerSettings = new JsonSerializerSettings()
         {
@@ -39,10 +31,6 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
 
         public Client(string url, string username, string apiKey, X509Certificate2 clientCert = null)
         {
-            _url = url;
-            _username = username;
-            _apiKey = apiKey;
-
             var handler = new HttpClientHandler();
             if (clientCert != null)
             {
@@ -73,7 +61,8 @@ namespace Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe
             {
                 SystemID = systemId,
                 AccountID = accountId,
-                DurationMinutes = 1, // need to check for duplicate open requests during this window to prevent 409 Conflict response
+                DurationMinutes = 1,
+                ConflictOption = "reuse",
                 Reason = "Automated request for Keyfactor PAM Provider plugin"
             };
 
