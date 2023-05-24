@@ -20,11 +20,6 @@ BeyondTrust Password Safe PAM Provider is supported by Keyfactor for Keyfactor c
 
 ---
 
-
-
-
-
-
 ### Initial Configuration of PAM Provider
 In order to allow Keyfactor to use the new BeyondTrust Password Safe PAM Provider, the definition needs to be added to the application database.
 This is done by running the provided `kfutil` tool to install the PAM definition, which only needs to be done one time. It uses API credentials to access the Keyfactor instance and create the PAM definition.
