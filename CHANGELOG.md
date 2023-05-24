@@ -1,3 +1,6 @@
+v1.1.0
+- Add support and documentation for kfutil usage
+
 v1.0.2
 - Reuse existing requests to avoid conflicts whe opening new credential request
 
