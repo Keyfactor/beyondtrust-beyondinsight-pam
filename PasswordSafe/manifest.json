@@ -1,0 +1,16 @@
+{
+    "extensions": {
+      "Keyfactor.Platform.Extensions.IPAMProvider": {
+        "PAMProviders.BeyondTrust-PasswordSafe.PAMProvider": {
+          "assemblyPath": "beyondtrust-beyondinsight-pam.dll",
+          "TypeFullName": "Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.PasswordSafePAM"
+        }
+      }
+    },
+    "Keyfactor:PAMProviders:BeyondTrust-PasswordSafe:InitializationInfo": {
+      "Host": "http://127.0.0.1/BeyondTrust/api/public/v3/",
+      "APIKey": "base64 API Key",
+      "Username": "username (with API Key and credential access)",
+      "ClientCertificate": "thumbprint - whitespace or blank if unused"
+    }
+  }
