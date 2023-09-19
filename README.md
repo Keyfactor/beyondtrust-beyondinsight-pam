@@ -65,6 +65,30 @@ __If you are not using a Client Certificate, enter whitespace into this field du
 After defining the necessary Functional Account to handle Managed System actions and administration, a Managed System can be defined and then a Managed Account with a Credential added.
 You will need to get the IDs for the Account and System to use them in Keyfactor. In order to obtain these, start by going to the "Managed System" or "Managed Accounts" area in Beyond Trust. Find the relevant system or account you are looking for, and click the 3-dot options on the far-right, and go to the "Advanced Details". The ID number will show up in the URL field after opening the Advanced Details.
 
+#### On Keyfactor Universal Orchestrator
+##### Installation
+Configuring the UO to use the Beyond Trust Password Safe PAM Provider requires first installing it as an extension by copying the release contents into a new extension folder named `BeyondTrust-PasswordSafe`.
+A `manifest.json` file is included in the release. This file needs to be edited to enter in the "initialization" parameters for the PAM Provider. Specifically values need to be entered for the parameters in the `manifest.json` of the __PAM Provider extension__:
+
+~~~ json
+"Keyfactor:PAMProviders:BeyondTrust-PasswordSafe:InitializationInfo": {
+      "Host": "http://127.0.0.1/BeyondTrust/api/public/v3/",
+      "APIKey": "base64 API Key",
+      "Username": "username (with API Key and credential access)",
+      "ClientCertificate": "thumbprint - whitespace or blank if unused"
+    }
+~~~
+
+##### Usage
+To use the PAM Provider to resolve a field, for example a Server Password, instead of entering in the actual value for the Server Password, enter a `json` object with the parameters specifying the field.
+The parameters needed are the "instance" parameters above:
+
+~~~ json
+{"SystemId":"1234","AccountId":"5678"}
+~~~
+
+If a field supports PAM but should not use PAM, simply enter in the actual value to be used instead of the `json` format object above.
+
 #### In Keyfactor - PAM Provider
 ##### Installation
 In order to setup a new PAM Provider in the Keyfactor Platform for the first time, you will need to run the `kfutil` tool (see Initial Configuration of PAM Provider).
