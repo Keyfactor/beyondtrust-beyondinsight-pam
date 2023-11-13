@@ -8,9 +8,9 @@
       }
     },
     "Keyfactor:PAMProviders:BeyondTrust-PasswordSafe:InitializationInfo": {
-      "Host": "http://127.0.0.1/BeyondTrust/api/public/v3/",
-      "APIKey": "base64 API Key",
+      "Host": "https://<IP address | FQDN>/BeyondTrust/api/public/v3/",
+      "APIKey": "base64 API Key from BeyondTrust",
       "Username": "username (with API Key and credential access)",
-      "ClientCertificate": "thumbprint - whitespace or blank if unused"
+      "ClientCertificate": "thumbprint of Client Auth Cert - whitespace or blank if unused"
     }
   }
