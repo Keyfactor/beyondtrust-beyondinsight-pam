@@ -72,10 +72,10 @@ A `manifest.json` file is included in the release. This file needs to be edited 
 
 ~~~ json
 "Keyfactor:PAMProviders:BeyondTrust-PasswordSafe:InitializationInfo": {
-      "Host": "http://127.0.0.1/BeyondTrust/api/public/v3/",
-      "APIKey": "base64 API Key",
+      "Host": "https://<IP address | FQDN>/BeyondTrust/api/public/v3/",
+      "APIKey": "base64 API Key from BeyondTrust",
       "Username": "username (with API Key and credential access)",
-      "ClientCertificate": "thumbprint - whitespace or blank if unused"
+      "ClientCertificate": "thumbprint of Client Auth Cert - whitespace or blank if unused"
     }
 ~~~
 
@@ -84,7 +84,7 @@ To use the PAM Provider to resolve a field, for example a Server Password, inste
 The parameters needed are the "instance" parameters above:
 
 ~~~ json
-{"SystemId":"1234","AccountId":"5678"}
+{"SystemId":"numeric ID of the system with the requested credential","AccountId":"numeric ID of the Account on the system with the password to retrieve"}
 ~~~
 
 If a field supports PAM but should not use PAM, simply enter in the actual value to be used instead of the `json` format object above.
