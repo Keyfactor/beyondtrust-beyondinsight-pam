@@ -1,3 +1,6 @@
+v1.1.1
+- Add manifest.json for installing on Universal Orchestrator 10.1+
+
 v1.1.0
 - Add support and documentation for kfutil usage
 
