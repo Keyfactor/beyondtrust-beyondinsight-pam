@@ -1,130 +1,160 @@
-# BeyondTrust Password Safe PAM Provider
+<h1 align="center" style="border-bottom: none">
+    BeyondTrust Password Safe PAM Provider
+</h1>
 
-The BeyondTrust Password Safe PAM Provider allows for the retrieval of stored account credentials from the Password Safe solution. A valid API registration in BeyondTrust is used to open a request and retrieve credentials for a given account on a system.
+<p align="center">
+  <!-- Badges -->
+<img src="https://img.shields.io/badge/integration_status-production-3D1973?style=flat-square" alt="Integration Status: production" />
+<a href="https://github.com/Keyfactor/beyondtrust-beyondinsight-pam/releases"><img src="https://img.shields.io/github/v/release/Keyfactor/beyondtrust-beyondinsight-pam?style=flat-square" alt="Release" /></a>
+<img src="https://img.shields.io/github/issues/Keyfactor/beyondtrust-beyondinsight-pam?style=flat-square" alt="Issues" />
+<img src="https://img.shields.io/github/downloads/Keyfactor/beyondtrust-beyondinsight-pam/total?style=flat-square&label=downloads&color=28B905" alt="GitHub Downloads (all assets, all releases)" />
+</p>
 
-#### Integration status: Production - Ready for use in production environments.
+<p align="center">
+  <!-- TOC -->
+  <a href="#overview">
+    <b>Overview</b>
+  </a>
+  ·
+  <a href="#installation">
+    <b>Installation</b>
+  </a>
+  ·
+  <a href="#usage">
+    <b>Usage</b>
+  </a>
+  ·
+  <a href="#support">
+    <b>Support</b>
+  </a>
+  ·
+  <a href="#license">
+    <b>License</b>
+  </a>
+  ·
+  <a href="https://github.com/orgs/Keyfactor/repositories?q=pam">
+    <b>Related Integrations</b>
+  </a>
+</p>
 
+## Overview
 
-## About the Keyfactor PAM Provider
+TODO this section is required
 
-Keyfactor supports the retrieval of credentials from 3rd party Privileged Access Management (PAM) solutions. Secret values can normally be stored, encrypted at rest, in the Keyfactor Platform database. A PAM Provider can allow these secrets to be stored, managed, and rotated in an external platform. This integration is usually configured on the Keyfactor Platform itself, where the platform can request the credential values when needed. In certain scenarios, a PAM Provider can instead be run on a remote location in conjunction with a Keyfactor Orchestrator to allow credential requests to originate from a location other than the Keyfactor Platform.
+## Getting Started
 
+The BeyondTrust Password Safe PAM Provider is used by Command to resolve PAM-eligible credentials for Universal Orchestrator extensions and for accessing Certificate Authorities. When configured, Command will use the BeyondTrust Password Safe PAM Provider to retrieve credentials needed to communicate with the target system. There are two ways to install the BeyondTrust Password Safe PAM Provider, and you may elect to use one or both methods:
 
-## Support for BeyondTrust Password Safe PAM Provider
+1. **Locally on the Keyfactor Command server**: PAM credential resolution via the BeyondTrust Password Safe PAM Provider will occur on the Keyfactor Command server each time an eligible credential is needed.
+2. **Remotely on Universal Orchestrators**: When Jobs are dispatched to Universal Orchestrators, the associated Certificate Store extension assembly will use the BeyondTrust Password Safe PAM Provider to resolve eligible PAM credentials.
 
-BeyondTrust Password Safe PAM Provider is supported by Keyfactor for Keyfactor customers. If you have a support issue, please open a support ticket via the Keyfactor Support Portal at https://support.keyfactor.com
+Before proceeding with installation, you should consider which pattern is best for your requirements and use case.
 
-###### To report a problem or suggest a new feature, use the **[Issues](../../issues)** tab. If you want to contribute actual bug fixes or proposed enhancements, use the **[Pull requests](../../pulls)** tab.
+### Installation
 
+> [!IMPORTANT]
+> For the most up-to-date and complete documentation on how to install a PAM provider extension, please visit our [product documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/ReferenceGuide/Preparing%20Third%20Party%20PAM%20Providers%20to%20Work%20with.htm?Highlight=pam%20provider#InstallingCustomPAMProviderExtensions).
 
----
+To install BeyondTrust Password Safe PAM Provider, it is recommended you install [kfutil](https://github.com/Keyfactor/kfutil). `kfutil` is a command-line tool that simplifies the process of creating PAM Types in Keyfactor Command.
 
+#### Requirements
 
+   TODO Requirements is a required section
 
+#### Create PAM type in Keyfactor Command
 
+##### Using `kfutil`
 
+Create the required PAM Types in the connected Command platform.
 
-### Initial Configuration of PAM Provider
-In order to allow Keyfactor to use the new BeyondTrust Password Safe PAM Provider, the definition needs to be added to the application database.
-This is done by running the provided `kfutil` tool to install the PAM definition, which only needs to be done one time. It uses API credentials to access the Keyfactor instance and create the PAM definition.
-
-The `kfutil` tool, after being [configured for API access](https://github.com/Keyfactor/kfutil#quickstart), can be run in the following manner to install the PAM definition from the Keyfactor repository:
-
+```shell
+# BeyondTrust-PasswordSafe
+kfutil pam-types create -r beyondtrust-beyondinsight-pam -n BeyondTrust-PasswordSafe
 ```
-kfutil pam types-create -r beyondtrust-beyondinsight-pam -n BeyondTrust-PasswordSafe
-```
 
-### Configuring Parameters
-The following are the parameter names and a description of the values needed to configure the BeyondTrust Password Safe PAM Provider.
+##### Using the API
 
-__Initialization Parameters for each defined PAM Provider instance__
-| Initialization parameter | Display Name | Description |
-| :---: | :---: | --- |
-| Host | BeyondTrust Host | The IP address or URL of the BeyondTrust instance, including the API endpoint (default endpoint: BeyondTrust/api/public/v3/) |
-| APIKey | BeyondTrust API Key | The base64 encode API registration key from BeyondTrust |
-| Username | BeyondTrust Username | The username that the API request will be run as. This user needs to have sufficient permissions on the API key and the credentials to request |
-| ClientCertificate | BeyondTrust Client Certificate Thumbprint | (OPTIONAL - enter whitespace if unused) The thumbprint for a client certificate to authenticate with BeyondTrust. Can be blank. Certificate should be present with exportable private key in the User's Personal store. |
+For full API docs please visit our [product documentation](https://software.keyfactor.com/Core-OnPrem/Current/Content/WebAPI/KeyfactorAPI/PAMProvidersPOSTTypes.htm?Highlight=pam%20type).
 
+Below is the payload to `POST` to the Keyfactor Command API:
 
-__Instance Parameters for each retrieved secret field__
-| Instance parameter | Display Name | Description |
-| :---: | :---: | --- |
-| SystemId | BeyondTrust System ID | The ID of the system that holds the requested credential |
-| AccountId | BeyondTrust Account ID | The ID of the account on the system, whose password will be retrieved |
-
-![](images/config.png)
-
-### Configuring for PAM Usage
-#### In Beyond Trust
-The Beyond Trust platform needs to be configured to allow for API requests to retrieve credentials for the systems and accounts necessary.
-In the Web Console, the Configuration section API Registrations will allow an API Key to be generated for a user, as well as specify if a Client Certificate will be required.
-The user that gets assigned this API Key should not be the default Administrator, and they will also need to be granted access to retrieve Credentials from the appropriate accounts in the User Management section.
-If using a Client Certificate, this will need to be exported from the Beyond Trust platform itself or issued from a properly configured PKI that the platform trusts.
-__If you are not using a Client Certificate, enter whitespace into this field during configuration in Keyfactor.__
-
-After defining the necessary Functional Account to handle Managed System actions and administration, a Managed System can be defined and then a Managed Account with a Credential added.
-You will need to get the IDs for the Account and System to use them in Keyfactor. In order to obtain these, start by going to the "Managed System" or "Managed Accounts" area in Beyond Trust. Find the relevant system or account you are looking for, and click the 3-dot options on the far-right, and go to the "Advanced Details". The ID number will show up in the URL field after opening the Advanced Details.
-
-#### On Keyfactor Universal Orchestrator
-##### Installation
-Configuring the UO to use the Beyond Trust Password Safe PAM Provider requires first installing it as an extension by copying the release contents into a new extension folder named `BeyondTrust-PasswordSafe`.
-A `manifest.json` file is included in the release. This file needs to be edited to enter in the "initialization" parameters for the PAM Provider. Specifically values need to be entered for the parameters in the `manifest.json` of the __PAM Provider extension__:
-
-~~~ json
-"Keyfactor:PAMProviders:BeyondTrust-PasswordSafe:InitializationInfo": {
-      "Host": "https://<IP address | FQDN>/BeyondTrust/api/public/v3/",
-      "APIKey": "base64 API Key from BeyondTrust",
-      "Username": "username (with API Key and credential access)",
-      "ClientCertificate": "thumbprint of Client Auth Cert - whitespace or blank if unused"
+```json
+{
+  "Name": "BeyondTrust-PasswordSafe",
+  "Parameters": [
+    {
+      "Name": "Host",
+      "DisplayName": "BeyondTrust Host",
+      "DataType": 1,
+      "InstanceLevel": false
+    },
+    {
+      "Name": "APIKey",
+      "DisplayName": "BeyondTrust API Key",
+      "DataType": 2,
+      "InstanceLevel": false
+    },
+    {
+      "Name": "Username",
+      "DisplayName": "BeyondTrust Username",
+      "DataType": 1,
+      "InstanceLevel": false
+    },
+    {
+      "Name": "ClientCertificate",
+      "DisplayName": "BeyondTrust Client Certificate Thumbprint",
+      "DataType": 1,
+      "InstanceLevel": false
+    },
+    {
+      "Name": "SystemId",
+      "DisplayName": "BeyondTrust System ID",
+      "DataType": 1,
+      "InstanceLevel": true
+    },
+    {
+      "Name": "AccountId",
+      "DisplayName": "BeyondTrust Account ID",
+      "DataType": 1,
+      "InstanceLevel": true
     }
-~~~
-
-##### Usage
-To use the PAM Provider to resolve a field, for example a Server Password, instead of entering in the actual value for the Server Password, enter a `json` object with the parameters specifying the field.
-The parameters needed are the "instance" parameters above:
-
-~~~ json
-{"SystemId":"numeric ID of the system with the requested credential","AccountId":"numeric ID of the Account on the system with the password to retrieve"}
-~~~
-
-If a field supports PAM but should not use PAM, simply enter in the actual value to be used instead of the `json` format object above.
-
-#### In Keyfactor - PAM Provider
-##### Installation
-In order to setup a new PAM Provider in the Keyfactor Platform for the first time, you will need to run the `kfutil` tool (see Initial Configuration of PAM Provider).
-
-After the installation is run, the DLLs need to be installed to the correct location for the PAM Provider to function. From the release, the beyondtrust-beyondinsight-pam.dll should be copied to the following folder locations in the Keyfactor installation. Once the DLL has been copied to these folders, edit the corresponding config file. You will need to add a new Unity entry as follows under `<container>`, next to other `<register>` tags.
-
-| Install Location | DLL Binary Folder | Config File |
-| --- | --- | --- |
-| WebAgentServices | WebAgentServices\bin\ | WebAgentServices\web.config |
-| Service | Service\ | Service\CMSTimerService.exe.config |
-| KeyfactorAPI | KeyfactorAPI\bin\ | KeyfactorAPI\web.config |
-| WebConsole | WebConsole\bin\ | WebConsole\web.config |
-
-When enabling a PAM provider for Orchestrators only, the first line for `WebAgentServices` is the only installation needed.
-
-The Keyfactor service and IIS Server should be restarted after making these changes.
-
-```xml
-<register type="IPAMProvider" mapTo="Keyfactor.Extensions.Pam.BeyondInsight.PasswordSafe.PasswordSafePAM, beyondtrust-beyondinsight-pam" name="BeyondTrust-PasswordSafe" />
+  ]
+}
 ```
 
+#### Install PAM provider on Keyfactor Command Host (Local)
 
+TODO Platform Install is an optional section. If this section doesn't seem necessary, please delete it.
 
+#### Install PAM provider on a Universal Orchestrator Host (Remote)
 
-##### Usage
-In order to use the PAM Provider, the provider's configuration must be set in the Keyfactor Platform. In the settings menu (upper right cog) you can select the ___Priviledged Access Management___ option to configure your provider instance.
+TODO Orchestrator Install is an optional section. If this section doesn't seem necessary, please delete it.
 
-![](images/setting.png)
+### Usage
 
-After it is set up, you can now use your PAM Provider when configuring certificate stores. Any field that is treated as a Keyfactor secret, such as server passwords and certificate store passwords can be retrieved from your PAM Provider instead of being entered in directly as a secret.
+#### From Keyfactor Command Host (Local)
 
-![](images/password.png)
+TODO Platform Usage is an optional section. If this section doesn't seem necessary, please delete it.
+#### From a Universal Orchestrator Host (Remote)
 
+TODO Orchestrator Usage is an optional section. If this section doesn't seem necessary, please delete it.
+> [!NOTE]
+> Additional information on BeyondTrust-PasswordSafe can be found in the [supplemental documentation](docs/beyondtrust-passwordsafe.md).
 
----
+#### Extension Mechanics
 
+TODO Extension Mechanics is an optional section. If this section doesn't seem necessary, please delete it.
 
+## Support
 
+The BeyondTrust Password Safe PAM Provider is supported by Keyfactor for Keyfactor customers. If you have a support issue, please open a support ticket via the Keyfactor Support Portal at https://support.keyfactor.com.
 
+> To report a problem or suggest a new feature, use the **[Issues](../../issues)** tab. If you want to contribute actual bug fixes or proposed enhancements, use the **[Pull requests](../../pulls)** tab.
+
+## License
+
+Apache License 2.0, see [LICENSE](LICENSE)
+
+## Related Integrations
+
+See all [Keyfactor PAM Provider extensions](https://github.com/orgs/Keyfactor/repositories?q=pam).
